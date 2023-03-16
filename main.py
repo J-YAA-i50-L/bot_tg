@@ -24,6 +24,8 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
+TOKEN = "5729933786:AAE4etvixT0i7ZdRbVR5mnsB2RhwpNtnPuk"
+
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -37,28 +39,43 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /help is issued."""
-    await update.message.reply_text('Команды: \n "/" - ...')
+    """Отправит список команд, когда будет выдана команда /help."""
+    await update.message.reply_text('Команды: \n "/catalog" - показывает католог товаров магазина \n')
 
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Echo the user message."""
+    """Повторите сообщение пользователя."""
     await update.message.reply_text(update.message.text)
 
 
+async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Отправит список разделов товаров, когда будет выдана команда /help."""
+    await update.message.reply_text('Ккуку ёпта')
+
+
+async def contacts_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Отправит вырианты связи с магазином, когда будет выдана команда /help."""
+    await update.message.reply_text('У нас есть сайт, на котором можно нати много полезной информации. \n'
+                                    'Также присоединяйтесь к нам ВКонтакте.\n'
+                                    'Вконтакте: https://vk.com/soblaznarzamas \n'
+                                    'Сайт: https://soblaznarz.uds.app/c/join?ref=xvvs0921 \n')
+
+
 def main() -> None:
-    """Start the bot."""
+    """Запустите бота."""
     # Создайте приложение и передайте ему токен вашего бота.
-    application = Application.builder().token("5729933786:AAE4etvixT0i7ZdRbVR5mnsB2RhwpNtnPuk").build()
+    application = Application.builder().token(TOKEN).build()
 
     # по разным командам - отвечайте в Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("catalog", catalog_command))
+    application.add_handler(CommandHandler("contacts", contacts_command))
 
     # по некомандному, то есть сообщению - повторить сообщение в Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    # Run the bot until the user presses Ctrl-C
+    # Запускайте бота до тех пор, пока пользователь не нажмет Ctrl-C
     application.run_polling()
 
 
