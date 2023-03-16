@@ -18,17 +18,32 @@ TOKEN = "5729933786:AAE4etvixT0i7ZdRbVR5mnsB2RhwpNtnPuk"
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
-    cont.add_user(user.id, f"{user.first_name} {user.last_name}", user.username)
+    add_user(user.id, f"{user.first_name} {user.last_name}", user.username)
     await update.message.reply_html(rf"Hi {user.mention_html()}!", reply_markup=ForceReply(selective=True),)
 
 
 async def statys(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    pass
+    """Назначает пользователя администратором, когда будет выдана команда /statys [password]."""
+    password = update.message.text[8:]
+    user = update.effective_user
+    if password == '1234':
+        remove_status(user.id)
+        await update.message.reply_html(rf"{user.mention_html()} назначен администратором!",
+                                        reply_markup=ForceReply(selective=True),)
+    else:
+        await update.message.reply_text('У вас нет прав!!!')
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит список команд, когда будет выдана команда /help."""
     await update.message.reply_text('Команды: \n "/catalog" - показывает каталог товаров магазина \n')
+
+
+async def document_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Отправит xls файл, когда будет выдана команда /document."""
+    if update.effective_user.id:
+        await update.message.reply_document(document='test.txt')
+    await update.message.reply_text('У вас нет прав для данной команды.')
 
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -88,6 +103,7 @@ def main() -> None:
 
     # по разным командам - отвечайте в Telegram
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("statys", statys))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("catalog", catalog_command))
     application.add_handler(CommandHandler("contacts", contacts_command))
@@ -95,10 +111,11 @@ def main() -> None:
     application.add_handler(CommandHandler("geo", geo_command))
     application.add_handler(CommandHandler("joining_the_club", joining_the_club_command))
     application.add_handler(CommandHandler("club_of_privileges", club_of_privileges_command))
+    application.add_handler(CommandHandler("document", document_command))
 
     # по некомандному, то есть сообщению - повторить сообщение в Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-
+    createBD()
     # Запускайте бота до тех пор, пока пользователь не нажмет Ctrl-C
     application.run_polling()
 
