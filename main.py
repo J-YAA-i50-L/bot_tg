@@ -2,6 +2,7 @@ import logging
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from for_db import Control
+
 # Enable logging
 logging.basicConfig(filename='logging.log',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG
@@ -9,24 +10,26 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
-
+TOKEN = "5729933786:AAE4etvixT0i7ZdRbVR5mnsB2RhwpNtnPuk"
 cont = Control()
+
+
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
+    cont.add_user(user.id, f"{user.first_name} {user.last_name}", user.username)
+    await update.message.reply_html(rf"Hi {user.mention_html()}!", reply_markup=ForceReply(selective=True),)
 
 
-    await update.message.reply_html(
-        rf"Hi {user.mention_html()}!",
-        reply_markup=ForceReply(selective=True),
-    )
+async def statys(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    pass
+
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит список команд, когда будет выдана команда /help."""
-    await update.message.reply_text('Команды: \n "/catalog" - показывает католог товаров магазина \n')
+    await update.message.reply_text('Команды: \n "/catalog" - показывает каталог товаров магазина \n')
 
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -41,7 +44,7 @@ async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def contacts_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит вырианты связи с магазином, когда будет выдана команда /contacts."""
-    await update.message.reply_text('У нас есть сайт, на котором можно нати много полезной информации. \n'
+    await update.message.reply_text('У нас есть сайт, на котором можно найти много полезной информации. \n'
                                     'Также присоединяйтесь к нам ВКонтакте.\n'
                                     'Вконтакте: https://vk.com/soblaznarzamas \n'
                                     'Сайт: https://soblaznarz.uds.app/c/join?ref=xvvs0921 \n')
@@ -49,7 +52,7 @@ async def contacts_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Связь с админимтратором, когда будет выдана команда /admin."""
-    await update.message.reply_text('Амининистратор ответит на все интересующие вас вопросы. '
+    await update.message.reply_text('Администратор ответит на все интересующие вас вопросы. '
                                     'С ним можно связаться по телефону: +79202980333')
 
 
@@ -60,8 +63,8 @@ async def geo_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def joining_the_club_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """вступления в Клуб Привилегий, когда будет выдана команда /joining_the_club."""
-    await update.message.reply_text('Хочешь получать крутые примущества? \n'
-                                    'Вступай в Клуб Привилегий. Что бы встпупить нужно сделать некоторые действия: \n'
+    await update.message.reply_text('Хочешь получать крутые преимущества? \n'
+                                    'Вступай в Клуб Привилегий. Что бы вступить нужно сделать некоторые действия: \n'
                                     ' - Зайти в PlayMarket или AppStore и скачать приложение "UDS APP" \n'
                                     ' - Зарегистрироваться и перейти по ссылке: '
                                     'https://soblaznarz.uds.app/c/join?ref=dwac1210 \n'
