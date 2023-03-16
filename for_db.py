@@ -55,32 +55,38 @@ def createBD():  # инициализация класса
 
 
 def get_answer(self, key_words):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     # self.con.cursor().execute('''SELECT FROM ''')
     return
 
 
-def add_que_ans(con, question, answer):
+def add_que_ans(question, answer):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''INSERT INTO question_answer(key_words, answer)
              VALUES ({question}, {answer})''')
     con.commit()
 
 
-def get_assort(con):
+def get_assort():
+    con = sqlite3.connect('database.db', check_same_thread=False)
     return con.cursor().execute('''SELECT * FROM category''').fetchall()
 
 
-def get_category_assort(con, id_category):
+def get_category_assort(id_category):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     return con.cursor().execute(f'''SELECT id, name, description, http
           FROM assortment WHERE category = "{id_category}"''').fetchall()
 
 
-def add_category(con, name, http):
+def add_category(name, http):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''INSERT INTO category(name, http)
                          VALUES('{name}', '{http}')''')
     con.commit()
 
 
-def del_category(con, name):
+def del_category(name):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     if not is_category(con, name):
         return False
     con.cursor().execute(f'''DELETE from category WHERE name = "{name}"''')
@@ -88,94 +94,111 @@ def del_category(con, name):
     return True
 
 
-def is_category(con, name):
+def is_category(name):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM category WHERE name="{name}"''').fetchall()) != 0
 
 
 def is_assort(con, name):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM assortment WHERE name="{name}"''').fetchall()) != 0
 
 
-def add_assort(con, name, opisanie, http, category):
-    con.con.cursor().execute(f'''INSERT INTO assortment(name, http, description, category)
+def add_assort(name, opisanie, http, category):
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    con.cursor().execute(f'''INSERT INTO assortment(name, http, description, category)
                                  VALUES('{name}', '{http}', '{opisanie}, '{category}')''')
     con.commit()
 
 
-def del_assort(con, name):
-    if not is_category(con, name):
+def del_assort(name):
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    if not is_category(name):
         return False
     con.cursor().execute(f'''DELETE from assortment WHERE name = "{name}"''')
     con.commit()
     return True
 
 
-def del_que_ans(con, question):
+def del_que_ans(question):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''DELETE from question_answer WHERE key_words = "{question}"''')
     con.commit()
 
 
-def remove_answer(con, question, answer):
+def remove_answer(question, answer):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''UPDATE question_answer
             SET answer = '{answer}' WHERE key_words = "{question}"''')
     con.commit()
 
 
-def add_user(con, id_tg, name, username):
+def add_user(id_tg, name, username):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''INSERT INTO users(name, status, id_tg, username)
                                  VALUES('{name}', False, "{id_tg}", "{username}")''')
     con.commit()
 
 
-def remove_status(con, name):
+def remove_status(name):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''UPDATE users
                     SET status = True WHERE name = "{name}"''')
     con.commit()
 
 
-def get_discount(con):
+def get_discount():
+    con = sqlite3.connect('database.db', check_same_thread=False)
     return con.cursor().execute('''SELECT * FROM discounts''').fetchall()
 
 
-def add_discount(con, name, des):
+def add_discount(name, des):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''INSERT INTO discounts(name, des_if)
                                          VALUES('{name}', "{des}")''')
     con.commit()
 
 
-def remove_discount(con, name, des):
+def remove_discount(name, des):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''UPDATE discounts
                             SET des_if="{des}" WHERE name = "{name}"''')
     con.commit()
 
 
-def del_discount(con, name):
+def del_discount(name):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''DELETE from discounts WHERE name = "{name}"''')
     con.commit()
 
 
-def get_notification(con):
+def get_notification():
+    con = sqlite3.connect('database.db', check_same_thread=False)
     return con.cursor().execute('''SELECT * FROM notifications''').fetchall()
 
 
-def add_notification(con, text, time):
+def add_notification(text, time):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''INSERT INTO notifications(text, time)
                                          VALUES("{text}", "{time}")''')
     con.commit()
 
 
-def remove_notification(con, text, time):
+def remove_notification(text, time):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''UPDATE notifications
                             SET  time ="{time}" WHERE text="{text}"''')
     con.commit()
 
 
-def del_notification(con, text):
+def del_notification(text):
+    con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''DELETE from notifications WHERE  text = "{text}"''')
     con.commit()
 
 
-def get_info_for_base(con):
+def get_info_for_base():
+    con = sqlite3.connect('database.db', check_same_thread=False)
     itog = []
     users = 'Пользователи', [
         ('ID', 'ФИО', 'Статус', 'Должность(1-админ, 0-клиент', 'ID TG', 'UserName')] + con.cursor().execute(f'''SELECT name, 
