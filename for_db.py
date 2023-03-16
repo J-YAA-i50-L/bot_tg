@@ -1,5 +1,7 @@
 import sqlite3
 
+import xlsxwriter
+
 
 def createBD():  # инициализация класса
     con = sqlite3.connect('database.db', check_same_thread=False)  # подключение БД
@@ -98,8 +100,10 @@ def is_category(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM category WHERE name="{name}"''').fetchall()) != 0
 
-
-def is_assort(con, name):
+def is_status(id_tg):
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    return len(con.cursor().execute(f'''SELECT * FROM users WHERE id_tg="{id_tg}" and status = True''').fetchall()) != 0
+def is_assort(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM assortment WHERE name="{name}"''').fetchall()) != 0
 
@@ -221,15 +225,23 @@ def get_info_for_base():
         ('Название', 'Описание')] + \
                 con.cursor().execute(f'''SELECT name, des_if FROM discounts''').fetchall()
     itog.append(questions)
+    workbook = xlsxwriter.Workbook('Таблица_Excel_БД.xlsx')
+    for sheet in itog:
+        name, stroki = sheet
+        worksheet = workbook.add_worksheet(name)
+        for row, stroka in enumerate(stroki):
+            for i in range(len(stroka)):
+                worksheet.write(row, i, stroka[i])
+    workbook.close()
     return itog
 
 
 
-# con.add_que_ans('12', '34')
+# add_que_ans('12', '34')
 # print(con.get_assort())
 # print(con.get_category_assort(0))
-# con.add_category('name', 'ooo')
-# con.del_category('Мужское')
+# add_category('name', 'ooo')
+# del_category('Мужское')
 # print(con.is_category('12'))
 # print(con.is_assort('12'))
 # con.del_assort('12')
@@ -237,12 +249,13 @@ def get_info_for_base():
 # con.remove_answer('12', '78')
 # con.add_user('1233')
 # con.remove_status('12')
-# con.add_discount('12', '23')
+# add_discount('12', '23')
 # print(con.get_discount())
 # con.remove_discount('12', '56')
 # con.del_discount('12')
-# con.add_notification('12', '122')
+# add_notification('12', '122')
 # print(con.get_notification())
 # con.remove_notification('12', '98')
 # con.del_notification('12')
 # print(get_info_for_base())
+# print(is_status(89))
