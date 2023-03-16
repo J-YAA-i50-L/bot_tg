@@ -60,13 +60,13 @@ def get_ll_span(address):
     r, t = envelope["upperCorner"].split(" ")
 
     # Вычисляем полуразмеры по вертикали и горизонтали
-    dx = abs(float(l) - float(r)) / 2.0
-    dy = abs(float(t) - float(b)) / 2.0
+    dx = abs(float(l) - float(r)) / 0.8
+    dy = abs(float(t) - float(b)) / 0.8
 
     # Собираем размеры в параметр span
     span = "{dx},{dy}".format(**locals())
 
-    return (ll, span)
+    return ll, span
 
 
 # Находим ближайшие к заданной точке объекты заданного типа.
