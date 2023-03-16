@@ -1,7 +1,7 @@
 import logging
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-
+from for_db import Control
 # Enable logging
 logging.basicConfig(filename='logging.log',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG
@@ -9,19 +9,20 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "5729933786:AAE4etvixT0i7ZdRbVR5mnsB2RhwpNtnPuk"
+TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
 
-
+cont = Control()
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
+
+
     await update.message.reply_html(
         rf"Hi {user.mention_html()}!",
         reply_markup=ForceReply(selective=True),
     )
-
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит список команд, когда будет выдана команда /help."""
