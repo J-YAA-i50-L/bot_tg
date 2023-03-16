@@ -5,7 +5,7 @@ class Control:
     def __init__(self):  # инициализация класса
         self.con = sqlite3.connect('database.db', check_same_thread=False)  # подключение БД
         create_table1 = """CREATE TABLE IF NOT EXISTS assortment (
-    id        PRIMARY KEY AUTOINCREMENT,
+    id    INTEGER    PRIMARY KEY AUTOINCREMENT,
     name        STRING  NOT NULL,
     http        STRING,
     description STRING,
@@ -14,7 +14,7 @@ class Control:
 
 """
         create_table2 = """CREATE TABLE IF NOT EXISTS discounts (
-     id     PRIMARY KEY AUTOINCREMENT,
+     id  INTEGER   PRIMARY KEY AUTOINCREMENT,
     name   STRING  NOT NULL,
     des_if STRING
 );
@@ -22,7 +22,7 @@ class Control:
 
 """
         create_table3 = """CREATE TABLE IF NOT EXISTS notifications (
-    id           PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     text    TEXT,
     time
 );
@@ -33,12 +33,14 @@ class Control:
 );
 """
         create_table5 = """CREATE TABLE IF NOT EXISTS users (
-    id      PRIMARY KEY AUTOINCREMENT,
+     id     INTEGER PRIMARY KEY AUTOINCREMENT,
     name   STRING  NOT NULL,
-    status BOOLEAN NOT NULL
+    status BOOLEAN NOT NULL,
+    id_tg  INTEGER NOT NULL
+                   UNIQUE
 );
 """
-        create_table6 = """CREATE TABLE IF NOT EXISTS category ( id  PRIMARY KEY AUTOINCREMENT,
+        create_table6 = """CREATE TABLE IF NOT EXISTS category ( id INTEGER PRIMARY KEY AUTOINCREMENT,
     name STRING, 
     http STRING
 );
@@ -106,9 +108,9 @@ class Control:
             SET answer = '{answer}' WHERE key_words = "{question}"''')
         self.con.commit()
 
-    def add_user(self, name):
-        self.con.cursor().execute(f'''INSERT INTO users(name, status)
-                                 VALUES('{name}', False)''')
+    def add_user(self,  id_tg, name):
+        self.con.cursor().execute(f'''INSERT INTO users(name, status, id_tg)
+                                 VALUES('{name}', False, "{id_tg}")''')
         self.con.commit()
 
     def remove_status(self, name):
@@ -143,14 +145,34 @@ class Control:
 
     def remove_notification(self, text, time):
         self.con.cursor().execute(f'''UPDATE notifications
-                            SET " time ="{time}" WHERE text="{text}''')
+                            SET  time ="{time}" WHERE text="{text}"''')
         self.con.commit()
 
     def del_notification(self, text):
         self.con.cursor().execute(f'''DELETE from notifications WHERE  text = "{text}"''')
         self.con.commit()
 
-
+    def get_info_for_base(self):
+        itog = []
+        users = 'Пользователи', [
+            ('ФИО', 'Статус', 'Должность(1-админ, 0-клиент)')] + self.con.cursor().execute(f'''SELECT name, 
+            status FROM Users''').fetchall()
+        itog.append(users)
+        categories = 'Категории', [
+            ('ID Категории', 'Название категории', 'Путь к файлу картинки')] + \
+                    self.con.cursor().execute(f'''SELECT id, name, http FROM category''').fetchall()
+        itog.append(categories)
+        mailings = 'Уведомления', [
+            ('Сообщение', 'Дата отправления', 'Для сотрудников компании...')] + \
+                   self.con.cursor().execute(f'''SELECT text, date,
+        company FROM Mailings''').fetchall()
+        itog.append(mailings)
+        questions = 'Вопросы', [
+            ('Вопрос', 'Ответ', 'Для сотрудников компании...')] + \
+                    self.con.cursor().execute(f'''SELECT text_q, text_a,
+        company FROM Questions''').fetchall()
+        itog.append(questions)
+        return itog
 
 con = Control()
 # con.add_que_ans('12', '34')
@@ -169,4 +191,7 @@ con = Control()
 # print(con.get_discount())
 # con.remove_discount('12', '56')
 # con.del_discount('12')
-con.add_notification('12', '122')
+# con.add_notification('12', '122')
+# print(con.get_notification())
+# con.remove_notification('12', '98')
+# con.del_notification('12')
