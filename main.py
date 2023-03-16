@@ -41,9 +41,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 async def document_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит xls файл, когда будет выдана команда /document."""
-    if update.effective_user.id:
-        await update.message.reply_document(document='test.txt')
-    await update.message.reply_text('У вас нет прав для данной команды.')
+    if is_status(update.effective_user.id):
+        get_info_for_base()
+        await update.message.reply_document(document='Таблица_Excel_БД.xlsx')
+    else:
+        await update.message.reply_text('У вас нет прав для данной команды.')
 
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
