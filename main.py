@@ -98,6 +98,17 @@ async def club_of_privileges_command(update: Update, context: ContextTypes.DEFAU
                                     'Что бы ознокомится с инструкцией вступления команда: /joining_the_club')
 
 
+async def work_schedule_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Отправит график работы магазинов, когда будет выдана команда /catalog."""
+    await update.message.reply_text('У нас два магазина: \n'
+                                    ' - Магазин по адресу г.Арзамас, Парковая ул., 14А, ТЦ «Славянский». \n'
+                                    'Работает по графику: \n\t пн – пт 9.00-19.00 \n\t сб – вс 9.00-18.00 \n'
+                                    ' - Магазин по адресу г.Арзамас, просп. Ленина, 121, TЦ «Метро». \n'
+                                    'Работает по графику: \n\t пн – вс 9.00-20.00 \n'
+                                    'Будем вас в наших магазинах, '
+                                    'их место положение можно узнать с помощью команды /geo')
+
+
 def main() -> None:
     """Запустите бота."""
     # Создайте приложение и передайте ему токен вашего бота.
@@ -114,6 +125,7 @@ def main() -> None:
     application.add_handler(CommandHandler("joining_the_club", joining_the_club_command))
     application.add_handler(CommandHandler("club_of_privileges", club_of_privileges_command))
     application.add_handler(CommandHandler("document", document_command))
+    application.add_handler(CommandHandler("work_schedule", work_schedule_command))
 
     # по некомандному, то есть сообщению - повторить сообщение в Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
