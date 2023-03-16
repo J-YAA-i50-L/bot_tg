@@ -5,7 +5,7 @@ class Control:
     def __init__(self):  # инициализация класса
         self.con = sqlite3.connect('database.db', check_same_thread=False)  # подключение БД
         create_table1 = """CREATE TABLE IF NOT EXISTS assortment (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id        PRIMARY KEY AUTOINCREMENT,
     name        STRING  NOT NULL,
     http        STRING,
     description STRING,
@@ -14,7 +14,7 @@ class Control:
 
 """
         create_table2 = """CREATE TABLE IF NOT EXISTS discounts (
-     id     INTEGER PRIMARY KEY AUTOINCREMENT,
+     id     PRIMARY KEY AUTOINCREMENT,
     name   STRING  NOT NULL,
     des_if STRING
 );
@@ -33,12 +33,12 @@ class Control:
 );
 """
         create_table5 = """CREATE TABLE IF NOT EXISTS users (
-    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    id      PRIMARY KEY AUTOINCREMENT,
     name   STRING  NOT NULL,
     status BOOLEAN NOT NULL
 );
 """
-        create_table6 = """CREATE TABLE IF NOT EXISTS category ( id   INTEGER PRIMARY KEY AUTOINCREMENT,
+        create_table6 = """CREATE TABLE IF NOT EXISTS category ( id  PRIMARY KEY AUTOINCREMENT,
     name STRING, 
     http STRING
 );
@@ -64,7 +64,8 @@ class Control:
         return self.con.cursor().execute('''SELECT * FROM category''').fetchall()
 
     def get_category_assort(self, id_category):
-        return self.con.cursor().execute(f'''SELECT id, name, description, http  FROM assortment WHERE category = "{id_category}"''').fetchall()
+        return self.con.cursor().execute(f'''SELECT id, name, description, http
+          FROM assortment WHERE category = "{id_category}"''').fetchall()
 
     def add_category(self, name, http):
         self.con.cursor().execute(f'''INSERT INTO category(name, http)
@@ -135,18 +136,18 @@ class Control:
     def get_notification(self):
         return self.con.cursor().execute('''SELECT * FROM notifications''').fetchall()
 
-    def add_notification(self, name, text, time):
-        self.con.cursor().execute(f'''INSERT INTO notifications(name, text, time)
-                                         VALUES('{name}', "{text}", "{time}")''')
+    def add_notification(self, text, time):
+        self.con.cursor().execute(f'''INSERT INTO notifications(text, time)
+                                         VALUES("{text}", "{time}")''')
         self.con.commit()
 
-    def remove_notification(self, name, text, time):
+    def remove_notification(self, text, time):
         self.con.cursor().execute(f'''UPDATE notifications
-                            SET text="{text}" time ="{time}" WHERE name = "{name}"''')
+                            SET " time ="{time}" WHERE text="{text}''')
         self.con.commit()
 
-    def del_notification(self, name):
-        self.con.cursor().execute(f'''DELETE from notifications WHERE name = "{name}"''')
+    def del_notification(self, text):
+        self.con.cursor().execute(f'''DELETE from notifications WHERE  text = "{text}"''')
         self.con.commit()
 
 
@@ -168,4 +169,4 @@ con = Control()
 # print(con.get_discount())
 # con.remove_discount('12', '56')
 # con.del_discount('12')
-con.add_notification('12', '122', '34')
+con.add_notification('12', '122')
