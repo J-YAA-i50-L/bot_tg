@@ -37,7 +37,8 @@ class Control:
     name   STRING  NOT NULL,
     status BOOLEAN NOT NULL,
     id_tg  INTEGER NOT NULL
-                   UNIQUE
+                   UNIQUE,
+    username STRING
 );
 """
         create_table6 = """CREATE TABLE IF NOT EXISTS category ( id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,9 +109,9 @@ class Control:
             SET answer = '{answer}' WHERE key_words = "{question}"''')
         self.con.commit()
 
-    def add_user(self,  id_tg, name):
-        self.con.cursor().execute(f'''INSERT INTO users(name, status, id_tg)
-                                 VALUES('{name}', False, "{id_tg}")''')
+    def add_user(self,  id_tg, name, username):
+        self.con.cursor().execute(f'''INSERT INTO users(name, status, id_tg, username)
+                                 VALUES('{name}', False, "{id_tg}", "{username}")''')
         self.con.commit()
 
     def remove_status(self, name):
