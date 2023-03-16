@@ -205,7 +205,7 @@ def get_info_for_base():
     con = sqlite3.connect('database.db', check_same_thread=False)
     itog = []
     users = 'Пользователи', [
-        ('ID', 'ФИО', 'Статус', 'Должность(1-админ, 0-клиент', 'ID TG', 'UserName')] + con.cursor().execute(f'''SELECT name, 
+        ('ID', 'ФИО', 'Должность(1-админ, 0-клиент', 'ID TG', 'UserName')] + con.cursor().execute(f'''SELECT id, name, 
             status, id_tg, username FROM Users''').fetchall()
     itog.append(users)
     categories = 'Категории', [
@@ -233,7 +233,7 @@ def get_info_for_base():
             for i in range(len(stroka)):
                 worksheet.write(row, i, stroka[i])
     workbook.close()
-    return itog
+    return
 
 
 
