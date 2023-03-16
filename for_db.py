@@ -225,7 +225,7 @@ def get_info_for_base():
         ('Название', 'Описание')] + \
                 con.cursor().execute(f'''SELECT name, des_if FROM discounts''').fetchall()
     itog.append(questions)
-    workbook = xlsxwriter.Workbook('.xlsx')
+    workbook = xlsxwriter.Workbook('Таблица_Excel_БД.xlsx')
     for sheet in itog:
         name, stroki = sheet
         worksheet = workbook.add_worksheet(name)
