@@ -1,7 +1,7 @@
 import logging
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-from for_db import Control
+from for_db import *
 
 # Enable logging
 logging.basicConfig(filename='logging.log',
@@ -11,7 +11,6 @@ logging.basicConfig(filename='logging.log',
 logger = logging.getLogger(__name__)
 
 TOKEN = "5729933786:AAE4etvixT0i7ZdRbVR5mnsB2RhwpNtnPuk"
-cont = Control()
 
 
 # Define a few command handlers. These usually take the two arguments update and
