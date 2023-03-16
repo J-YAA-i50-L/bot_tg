@@ -1,18 +1,3 @@
-#!/usr/bin/env python
-# pylint: disable=unused-argument, wrong-import-position
-# This program is dedicated to the public domain under the CC0 license.
-
-"""
-Simple Bot to reply to Telegram messages.
-First, a few handler functions are defined. Then, those functions are passed to
-the Application and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-Usage:
-Basic Echobot example, repeats messages.
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
-"""
-
 import logging
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
@@ -49,16 +34,48 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Отправит список разделов товаров, когда будет выдана команда /help."""
+    """Отправит список разделов товаров, когда будет выдана команда /catalog."""
     await update.message.reply_text('Ккуку ёпта')
 
 
 async def contacts_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Отправит вырианты связи с магазином, когда будет выдана команда /help."""
+    """Отправит вырианты связи с магазином, когда будет выдана команда /contacts."""
     await update.message.reply_text('У нас есть сайт, на котором можно нати много полезной информации. \n'
                                     'Также присоединяйтесь к нам ВКонтакте.\n'
                                     'Вконтакте: https://vk.com/soblaznarzamas \n'
                                     'Сайт: https://soblaznarz.uds.app/c/join?ref=xvvs0921 \n')
+
+
+async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Связь с админимтратором, когда будет выдана команда /admin."""
+    await update.message.reply_text('Амининистратор ответит на все интересующие вас вопросы. '
+                                    'С ним можно связаться по телефону: +79202980333')
+
+
+async def geo_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Магазины на карте, когда будет выдана команда /geo."""
+    await update.message.reply_text('я карта. я карта')
+
+
+async def joining_the_club_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """вступления в Клуб Привилегий, когда будет выдана команда /joining_the_club."""
+    await update.message.reply_text('Хочешь получать крутые примущества? \n'
+                                    'Вступай в Клуб Привилегий. Что бы встпупить нужно сделать некоторые действия: \n'
+                                    ' - Зайти в PlayMarket или AppStore и скачать приложение "UDS APP" \n'
+                                    ' - Зарегистрироваться и перейти по ссылке: '
+                                    'https://soblaznarz.uds.app/c/join?ref=dwac1210 \n'
+                                    ' - Получите первые 100 баллов на бонусный счет! (1 балл = 1 рубль) \n'
+                                    'Для того что бы ознокомиться с примуществами команда: /club_of_privileges')
+
+
+async def club_of_privileges_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Преимущества Клуба Привилегий, когда будет выдана команда /club_of_privileges."""
+    await update.message.reply_text('У нас есть Клуба Привилегий, участникам он даёт некоторые примущества:\n'
+                                    ' - Получают скидку на первую покупку \n'
+                                    ' - Получают персональные уведомления о новинках и акциях \n '
+                                    ' - Копят баллы с каждой покупки и забирают товар БЕСПЛАТНО \n'
+                                    ' - Рекомендуют нас друзьям и получают баллы с их покупок \n'
+                                    'Что бы ознокомится с инструкцией вступления команда: /joining_the_club')
 
 
 def main() -> None:
@@ -71,6 +88,10 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("catalog", catalog_command))
     application.add_handler(CommandHandler("contacts", contacts_command))
+    application.add_handler(CommandHandler("administrator", admin_command))
+    application.add_handler(CommandHandler("geo", geo_command))
+    application.add_handler(CommandHandler("joining_the_club", joining_the_club_command))
+    application.add_handler(CommandHandler("club_of_privileges", club_of_privileges_command))
 
     # по некомандному, то есть сообщению - повторить сообщение в Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
