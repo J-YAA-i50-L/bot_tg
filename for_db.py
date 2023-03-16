@@ -140,10 +140,10 @@ def add_user(id_tg, name, username):
     con.commit()
 
 
-def remove_status(name):
+def remove_status(id_tg):
     con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''UPDATE users
-                    SET status = True WHERE name = "{name}"''')
+                    SET status = True WHERE id_tg = "{id_tg}"''')
     con.commit()
 
 
@@ -209,14 +209,17 @@ def get_info_for_base():
                  con.cursor().execute(f'''SELECT id, name, http FROM category''').fetchall()
     itog.append(categories)
     mailings = 'Уведомления', [
-        ('Сообщение', 'Дата отправления', 'Для сотрудников компании...')] + \
-               con.cursor().execute(f'''SELECT text, date,
-        company FROM Mailings''').fetchall()
+        ('Сообщение', 'Дата отправления')] + \
+               con.cursor().execute(f'''SELECT text, time FROM notifications''').fetchall()
     itog.append(mailings)
     questions = 'Вопросы', [
-        ('Вопрос', 'Ответ', 'Для сотрудников компании...')] + \
-                con.cursor().execute(f'''SELECT text_q, text_a,
-        company FROM Questions''').fetchall()
+        ('Вопрос', 'Ответ')] + \
+                con.cursor().execute(f'''SELECT key_words, answer FROM question_answer''').fetchall()
+    itog.append(questions)
+
+    questions = 'Скидки', [
+        ('Название', 'Описание')] + \
+                con.cursor().execute(f'''SELECT name, des_if FROM discounts''').fetchall()
     itog.append(questions)
     return itog
 
@@ -242,3 +245,4 @@ def get_info_for_base():
 # print(con.get_notification())
 # con.remove_notification('12', '98')
 # con.del_notification('12')
+# print(get_info_for_base())
