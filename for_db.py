@@ -1,10 +1,9 @@
 import sqlite3
 
 
-class Control:
-    def __init__(self):  # инициализация класса
-        self.con = sqlite3.connect('database.db', check_same_thread=False)  # подключение БД
-        create_table1 = """CREATE TABLE IF NOT EXISTS assortment (
+def createBD():  # инициализация класса
+    con = sqlite3.connect('database.db', check_same_thread=False)  # подключение БД
+    create_table1 = """CREATE TABLE IF NOT EXISTS assortment (
     id    INTEGER    PRIMARY KEY AUTOINCREMENT,
     name        STRING  NOT NULL,
     http        STRING,
@@ -13,7 +12,7 @@ class Control:
 );
 
 """
-        create_table2 = """CREATE TABLE IF NOT EXISTS discounts (
+    create_table2 = """CREATE TABLE IF NOT EXISTS discounts (
      id  INTEGER   PRIMARY KEY AUTOINCREMENT,
     name   STRING  NOT NULL,
     des_if STRING
@@ -21,18 +20,18 @@ class Control:
 
 
 """
-        create_table3 = """CREATE TABLE IF NOT EXISTS notifications (
+    create_table3 = """CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     text    TEXT,
     time
 );
 """
-        create_table4 = """CREATE TABLE IF NOT EXISTS question_answer (
+    create_table4 = """CREATE TABLE IF NOT EXISTS question_answer (
     key_words STRING NOT NULL,
     answer           NOT NULL
 );
 """
-        create_table5 = """CREATE TABLE IF NOT EXISTS users (
+    create_table5 = """CREATE TABLE IF NOT EXISTS users (
      id     INTEGER PRIMARY KEY AUTOINCREMENT,
     name   STRING  NOT NULL,
     status BOOLEAN NOT NULL,
@@ -41,141 +40,165 @@ class Control:
     username STRING
 );
 """
-        create_table6 = """CREATE TABLE IF NOT EXISTS category ( id INTEGER PRIMARY KEY AUTOINCREMENT,
+    create_table6 = """CREATE TABLE IF NOT EXISTS category ( id INTEGER PRIMARY KEY AUTOINCREMENT,
     name STRING, 
     http STRING
 );
         """
-        self.con.cursor().execute(create_table1)  # создание отсутствующих и необходимых таблиц
-        self.con.cursor().execute(create_table2)
-        self.con.cursor().execute(create_table3)
-        self.con.cursor().execute(create_table4)
-        self.con.cursor().execute(create_table5)
-        self.con.cursor().execute(create_table6)
-        self.con.commit()
+    con.cursor().execute(create_table1)  # создание отсутствующих и необходимых таблиц
+    con.cursor().execute(create_table2)
+    con.cursor().execute(create_table3)
+    con.cursor().execute(create_table4)
+    con.cursor().execute(create_table5)
+    con.cursor().execute(create_table6)
+    con.commit()
 
-    def get_answer(self, key_words):
-        #self.con.cursor().execute('''SELECT FROM ''')
-        return
 
-    def add_que_ans(self, question, answer):
-        self.con.cursor().execute(f'''INSERT INTO question_answer(key_words, answer)
-                 VALUES ({question}, {answer})''')
-        self.con.commit()
+def get_answer(self, key_words):
+    # self.con.cursor().execute('''SELECT FROM ''')
+    return
 
-    def get_assort(self):
-        return self.con.cursor().execute('''SELECT * FROM category''').fetchall()
 
-    def get_category_assort(self, id_category):
-        return self.con.cursor().execute(f'''SELECT id, name, description, http
+def add_que_ans(con, question, answer):
+    con.cursor().execute(f'''INSERT INTO question_answer(key_words, answer)
+             VALUES ({question}, {answer})''')
+    con.commit()
+
+
+def get_assort(con):
+    return con.cursor().execute('''SELECT * FROM category''').fetchall()
+
+
+def get_category_assort(con, id_category):
+    return con.cursor().execute(f'''SELECT id, name, description, http
           FROM assortment WHERE category = "{id_category}"''').fetchall()
 
-    def add_category(self, name, http):
-        self.con.cursor().execute(f'''INSERT INTO category(name, http)
+
+def add_category(con, name, http):
+    con.cursor().execute(f'''INSERT INTO category(name, http)
                          VALUES('{name}', '{http}')''')
-        self.con.commit()
+    con.commit()
 
-    def del_category(self, name):
-        if not self.is_category(name):
-            return False
-        self.con.cursor().execute(f'''DELETE from category WHERE name = "{name}"''')
-        self.con.commit()
-        return True
 
-    def is_category(self, name):
-        return len(self.con.cursor().execute(f'''SELECT * FROM category WHERE name="{name}"''').fetchall()) != 0
+def del_category(con, name):
+    if not is_category(con, name):
+        return False
+    con.cursor().execute(f'''DELETE from category WHERE name = "{name}"''')
+    con.commit()
+    return True
 
-    def is_assort(self, name):
-        return len(self.con.cursor().execute(f'''SELECT * FROM assortment WHERE name="{name}"''').fetchall()) != 0
 
-    def add_assort(self, name, opisanie, http, category):
-        self.con.cursor().execute(f'''INSERT INTO assortment(name, http, description, category)
+def is_category(con, name):
+    return len(con.cursor().execute(f'''SELECT * FROM category WHERE name="{name}"''').fetchall()) != 0
+
+
+def is_assort(con, name):
+    return len(con.cursor().execute(f'''SELECT * FROM assortment WHERE name="{name}"''').fetchall()) != 0
+
+
+def add_assort(con, name, opisanie, http, category):
+    con.con.cursor().execute(f'''INSERT INTO assortment(name, http, description, category)
                                  VALUES('{name}', '{http}', '{opisanie}, '{category}')''')
-        self.con.commit()
+    con.commit()
 
-    def del_assort(self, name):
-        if not self.is_category(name):
-            return False
-        self.con.cursor().execute(f'''DELETE from assortment WHERE name = "{name}"''')
-        self.con.commit()
-        return True
 
-    def del_que_ans(self, question):
-        self.con.cursor().execute(f'''DELETE from question_answer WHERE key_words = "{question}"''')
-        self.con.commit()
+def del_assort(con, name):
+    if not is_category(con, name):
+        return False
+    con.cursor().execute(f'''DELETE from assortment WHERE name = "{name}"''')
+    con.commit()
+    return True
 
-    def remove_answer(self, question, answer):
-        self.con.cursor().execute(f'''UPDATE question_answer
+
+def del_que_ans(con, question):
+    con.cursor().execute(f'''DELETE from question_answer WHERE key_words = "{question}"''')
+    con.commit()
+
+
+def remove_answer(con, question, answer):
+    con.cursor().execute(f'''UPDATE question_answer
             SET answer = '{answer}' WHERE key_words = "{question}"''')
-        self.con.commit()
+    con.commit()
 
-    def add_user(self,  id_tg, name, username):
-        self.con.cursor().execute(f'''INSERT INTO users(name, status, id_tg, username)
+
+def add_user(con, id_tg, name, username):
+    con.cursor().execute(f'''INSERT INTO users(name, status, id_tg, username)
                                  VALUES('{name}', False, "{id_tg}", "{username}")''')
-        self.con.commit()
+    con.commit()
 
-    def remove_status(self, name):
-        self.con.cursor().execute(f'''UPDATE users
+
+def remove_status(con, name):
+    con.cursor().execute(f'''UPDATE users
                     SET status = True WHERE name = "{name}"''')
-        self.con.commit()
+    con.commit()
 
-    def get_discount(self):
-        return self.con.cursor().execute('''SELECT * FROM discounts''').fetchall()
 
-    def add_discount(self, name, des):
-        self.con.cursor().execute(f'''INSERT INTO discounts(name, des_if)
+def get_discount(con):
+    return con.cursor().execute('''SELECT * FROM discounts''').fetchall()
+
+
+def add_discount(con, name, des):
+    con.cursor().execute(f'''INSERT INTO discounts(name, des_if)
                                          VALUES('{name}', "{des}")''')
-        self.con.commit()
+    con.commit()
 
-    def remove_discount(self, name, des):
-        self.con.cursor().execute(f'''UPDATE discounts
+
+def remove_discount(con, name, des):
+    con.cursor().execute(f'''UPDATE discounts
                             SET des_if="{des}" WHERE name = "{name}"''')
-        self.con.commit()
+    con.commit()
 
-    def del_discount(self, name):
-        self.con.cursor().execute(f'''DELETE from discounts WHERE name = "{name}"''')
-        self.con.commit()
 
-    def get_notification(self):
-        return self.con.cursor().execute('''SELECT * FROM notifications''').fetchall()
+def del_discount(con, name):
+    con.cursor().execute(f'''DELETE from discounts WHERE name = "{name}"''')
+    con.commit()
 
-    def add_notification(self, text, time):
-        self.con.cursor().execute(f'''INSERT INTO notifications(text, time)
+
+def get_notification(con):
+    return con.cursor().execute('''SELECT * FROM notifications''').fetchall()
+
+
+def add_notification(con, text, time):
+    con.cursor().execute(f'''INSERT INTO notifications(text, time)
                                          VALUES("{text}", "{time}")''')
-        self.con.commit()
+    con.commit()
 
-    def remove_notification(self, text, time):
-        self.con.cursor().execute(f'''UPDATE notifications
+
+def remove_notification(con, text, time):
+    con.cursor().execute(f'''UPDATE notifications
                             SET  time ="{time}" WHERE text="{text}"''')
-        self.con.commit()
+    con.commit()
 
-    def del_notification(self, text):
-        self.con.cursor().execute(f'''DELETE from notifications WHERE  text = "{text}"''')
-        self.con.commit()
 
-    def get_info_for_base(self):
-        itog = []
-        users = 'Пользователи', [
-            ('ФИО', 'Статус', 'Должность(1-админ, 0-клиент)')] + self.con.cursor().execute(f'''SELECT name, 
-            status FROM Users''').fetchall()
-        itog.append(users)
-        categories = 'Категории', [
-            ('ID Категории', 'Название категории', 'Путь к файлу картинки')] + \
-                    self.con.cursor().execute(f'''SELECT id, name, http FROM category''').fetchall()
-        itog.append(categories)
-        mailings = 'Уведомления', [
-            ('Сообщение', 'Дата отправления', 'Для сотрудников компании...')] + \
-                   self.con.cursor().execute(f'''SELECT text, date,
+def del_notification(con, text):
+    con.cursor().execute(f'''DELETE from notifications WHERE  text = "{text}"''')
+    con.commit()
+
+
+def get_info_for_base(con):
+    itog = []
+    users = 'Пользователи', [
+        ('ID', 'ФИО', 'Статус', 'Должность(1-админ, 0-клиент', 'ID TG', 'UserName')] + con.cursor().execute(f'''SELECT name, 
+            status, id_tg, username FROM Users''').fetchall()
+    itog.append(users)
+    categories = 'Категории', [
+        ('ID Категории', 'Название категории', 'Путь к файлу картинки')] + \
+                 con.cursor().execute(f'''SELECT id, name, http FROM category''').fetchall()
+    itog.append(categories)
+    mailings = 'Уведомления', [
+        ('Сообщение', 'Дата отправления', 'Для сотрудников компании...')] + \
+               con.cursor().execute(f'''SELECT text, date,
         company FROM Mailings''').fetchall()
-        itog.append(mailings)
-        questions = 'Вопросы', [
-            ('Вопрос', 'Ответ', 'Для сотрудников компании...')] + \
-                    self.con.cursor().execute(f'''SELECT text_q, text_a,
+    itog.append(mailings)
+    questions = 'Вопросы', [
+        ('Вопрос', 'Ответ', 'Для сотрудников компании...')] + \
+                con.cursor().execute(f'''SELECT text_q, text_a,
         company FROM Questions''').fetchall()
-        itog.append(questions)
-        return itog
+    itog.append(questions)
+    return itog
 
-con = Control()
+
+
 # con.add_que_ans('12', '34')
 # print(con.get_assort())
 # print(con.get_category_assort(0))
