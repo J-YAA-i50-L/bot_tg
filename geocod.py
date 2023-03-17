@@ -2,7 +2,34 @@
 
 import requests
 
+import pandas as pd
 
+def get_file_of_tg(id, token):
+    zap = f'''https://api.telegram.org/bot{token}/getFile?file_id={id}'''
+    response = requests.get(zap).json()["result"]["file_path"]
+    dls = f'https://api.telegram.org/file/bot{token}/{response}'
+    resp = requests.get(dls)
+    output = open('dow.xlsx', 'wb')
+    output.write(resp.content)
+    output.close()
+
+
+def check_file_of_tg():
+    a = [['ID', 'ФИО', 'Должность(1-админ, 0-клиент', 'ID TG', 'UserName'],
+         ['ID Категории', 'Название категории', 'Путь к файлу картинки'],
+         ['Сообщение', 'Дата отправления'],
+         ['Вопрос', 'Ответ'],
+         ['Название', 'Описание']]
+    flag = True
+    for sheet in range(5):
+        df = pd.read_excel(io='dow.xlsx', sheet_name=sheet)
+        if ''.join(df.head(0).columns.values) != ''.join(a[sheet]):
+            flag = False
+            break
+    return flag
+
+
+print(check_file_of_tg())
 def geocode(address):
     # Собираем запрос для геокодера.
     geocoder_request = "http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode={address}&format=json".format(**locals())

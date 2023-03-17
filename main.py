@@ -1,7 +1,10 @@
 import logging
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-from for_db import Control
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler, \
+    BaseHandler
+from for_db import *
+from geocod import *
+
 # Enable logging
 logging.basicConfig(filename='logging.log',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG
@@ -11,18 +14,19 @@ logger = logging.getLogger(__name__)
 
 TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
 
-cont = Control()
+
 # Define a few command handlers. These usually take the two arguments update and
 # context.
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
-
 
     await update.message.reply_html(
         rf"Hi {user.mention_html()}!",
         reply_markup=ForceReply(selective=True),
     )
+
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит список команд, когда будет выдана команда /help."""
@@ -32,6 +36,40 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Повторите сообщение пользователя."""
     await update.message.reply_text(update.message.text)
+
+
+async def doc(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Повторите сообщение пользователя."""
+    await update.message.reply_text('eeee')
+    return 0
+
+
+async def document(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Повторите сообщение пользователя."""
+    get_info_for_base()
+    await update.message.reply_document('Таблица_Excel_БД.xlsx')
+
+
+async def check_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Повторите сообщение пользователя."""
+    user = update.effective_user
+    a = update.message.document
+    if not a:
+        await update.message.reply_text('не то')
+        return ConversationHandler.END
+
+    get_file_of_tg(a.file_id, TOKEN)
+    if not check_file_of_tg():
+        await update.message.reply_text('pppp')
+    else:
+        await update.message.reply_text('Полностью ')
+        return 1
+    return ConversationHandler.END
+
+
+async def remove_bzd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    dow_remove_for_tg(update.message.text)
+    await update.message.reply_document('Таблица_Excel_БД.xlsx')
 
 
 async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -56,6 +94,11 @@ async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 async def geo_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Магазины на карте, когда будет выдана команда /geo."""
     await update.message.reply_text('я карта. я карта')
+
+async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Магазины на карте, когда будет выдана команда /geo."""
+    await update.message.reply_text('я карта. я карта')
+    return ConversationHandler.END
 
 
 async def joining_the_club_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -83,7 +126,19 @@ def main() -> None:
     """Запустите бота."""
     # Создайте приложение и передайте ему токен вашего бота.
     application = Application.builder().token(TOKEN).build()
-
+    script_registration = ConversationHandler(
+        # Точка входа в диалог.
+        # В данном случае — команда /start. Она задаёт первый вопрос.
+        entry_points=[CommandHandler('doc_post', doc)],
+        # Состояние внутри диалога.
+        states={
+            0: [MessageHandler(filters.ALL & ~filters.COMMAND, check_file)],
+            1: [MessageHandler(filters.ALL & ~filters.COMMAND, remove_bzd)]
+        },
+        # Точка прерывания диалога. В данном случае — команда /stop.
+        allow_reentry=False,
+        fallbacks=[CommandHandler('stop', stop)]
+    )
     # по разным командам - отвечайте в Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
@@ -93,10 +148,11 @@ def main() -> None:
     application.add_handler(CommandHandler("geo", geo_command))
     application.add_handler(CommandHandler("joining_the_club", joining_the_club_command))
     application.add_handler(CommandHandler("club_of_privileges", club_of_privileges_command))
-
+    application.add_handler(CommandHandler("dnt", document))
+    application.add_handler(script_registration)
     # по некомандному, то есть сообщению - повторить сообщение в Telegram
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-
+    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    createBD()
     # Запускайте бота до тех пор, пока пользователь не нажмет Ctrl-C
     application.run_polling()
 
