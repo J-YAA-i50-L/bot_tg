@@ -13,7 +13,7 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "5544711357:AAFopsvs4GMRVz25f8KALwNsZbr3VmzdMwM"
+TOKEN = "6018046007:AAFLor0c0bG_vXOWDN-a6s5cR-7Bas8gqlA"
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -97,7 +97,15 @@ async def remove_bzd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
 async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит список разделов товаров, когда будет выдана команда /catalog."""
-    await update.message.reply_text('Ккуку ёпта')
+    await update.message.reply_text('Католог товаров у нас большой:\n'
+                                    ' 1 -Наборы\n - Детская косметика\n 2 - Лаки, пенки для волос, расчёски\n'
+                                    ' 3 - Уход за волосами в домашних условиях\n 4 - Косметика Мирра Люкс\n'
+                                    ' 5 - Insight профуход за волосами\n 6 - Крема для лица, тела и рук, очищение\n'
+                                    ' 7 - Женские духи\n 8 - Парфюм Niche- духи унисекс\n'
+                                    ' 9 - Elements- парфюм унисекс\n'
+                                    ' 10 - Продукция с Aloe Vera \n'
+                                    'Выбирете интересующий вас раздел(В ведите название или номер)')
+    return 0
 
 
 async def contacts_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -118,15 +126,33 @@ async def geo_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     """Магазины на карте, когда будет выдана команда /geo."""
     try:
         maps = maps_global()
-        context.bot.sendPhoto(update.message.chat.id, maps, caption=update.message.text)
+        print(maps)
+        await update.message.reply_photo(maps)
+        await update.message.reply_text('У нас две точки по адресам:'
+                                        '\n\t 1. г.Арзамас, просп. Ленина, 121, TЦ «Метро» 3 здание, 1 этаж'
+                                        '\n\t 2. г.Арзамас, Парковая ул., 14А, ТЦ «Славянский»,1 этаж, отдел номер 7')
     except RuntimeError as ex:
         await update.message.reply_text('Что то пошло не по плану')
 
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Магазины на карте, когда будет выдана команда /geo."""
-    await update.message.reply_text('я карта. я карта')
+    await update.message.reply_text('stop')
     return ConversationHandler.END
+
+
+async def asortiment(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Магазины на карте, когда будет выдана команда /geo."""
+    text = update.message.text
+    number = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+    name = ['Наборы', 'Детская косметика', 'Лаки, пенки для волос, расчёски', ' Уход за волосами в домашних условиях',
+            'Косметика Мирра Люкс', 'Insight профуход за волосами', 'Крема для лица, тела и рук, очищение',
+            'Женские духи', 'Парфюм Niche- духи унисекс', 'Elements- парфюм унисекс', 'Продукция с Aloe Vera']
+    if text in number:
+        get_assort(int(text))
+    else:
+        print(text)
+
 
 
 async def joining_the_club_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -178,11 +204,24 @@ def main() -> None:
         allow_reentry=False,
         fallbacks=[CommandHandler('stop', stop)]
     )
+    script_catalog = ConversationHandler(
+        # Точка входа в диалог.
+        # В данном случае — команда /start. Она задаёт первый вопрос.
+        entry_points=[CommandHandler('catalog', catalog_command)],
+        # Состояние внутри диалога.
+        states={
+            0: [MessageHandler(filters.ALL & ~filters.COMMAND, check_file)],
+            # 1: [MessageHandler(filters.ALL & ~filters.COMMAND, remove_bzd)]
+        },
+        # Точка прерывания диалога. В данном случае — команда /stop.
+        allow_reentry=False,
+        fallbacks=[CommandHandler('stop', stop)]
+    )
     # по разным командам - отвечайте в Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("statys", statys))
     application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("catalog", catalog_command))
+    # application.add_handler(CommandHandler("catalog", catalog_command))
     application.add_handler(CommandHandler("contacts", contacts_command))
     application.add_handler(CommandHandler("administrator", admin_command))
     application.add_handler(CommandHandler("geo", geo_command))
@@ -190,6 +229,7 @@ def main() -> None:
     application.add_handler(CommandHandler("club_of_privileges", club_of_privileges_command))
     application.add_handler(CommandHandler("dnt", document))
     application.add_handler(script_registration)
+    application.add_handler(script_catalog)
     application.add_handler(CommandHandler("document", document_command))
     application.add_handler(CommandHandler("work_schedule", work_schedule_command))
 
