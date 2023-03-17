@@ -69,9 +69,16 @@ def add_que_ans(question, answer):
     con.commit()
 
 
-def get_assort(id):
+def get_id_category_of_name(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
-    return con.cursor().execute(f'''SELECT * FROM  assortment where id = {id}''').fetchall()
+    return len(con.cursor().execute(f'''SELECT id FROM category WHERE name="{name}"''').fetchone())
+
+
+def get_assort_name_category(name):
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    id_category = get_id_category_of_name(name)
+    return con.cursor().execute(f'''SELECT id, name, description, http
+             FROM assortment WHERE category = "{id_category}"''').fetchall()
 
 
 def get_category_assort(id_category):
@@ -100,9 +107,12 @@ def is_category(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM category WHERE name="{name}"''').fetchall()) != 0
 
+
 def is_status(id_tg):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM users WHERE id_tg="{id_tg}" and status = True''').fetchall()) != 0
+
+
 def is_assort(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM assortment WHERE name="{name}"''').fetchall()) != 0
@@ -271,8 +281,14 @@ def del_all():
     con.cursor().execute(f'''DELETE from notifications''')
     con.cursor().execute(f'''DELETE from question_answer''')
     con.cursor().execute(f'''DELETE from users''')
-
     con.commit()
+
+
+def get_no_admin_id():
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    return con.cursor().execute(f'''SELECT id_tg FROM users WHERE status = False''')
+
+
 
 # add_que_ans('12', '34')
 # print(con.get_assort())
@@ -298,3 +314,4 @@ def del_all():
 # print(get_info_for_base())
 # print(is_status(89))
 # dow_remove_for_tg(0)
+# add_category('Продукция с Aloe Vera', '1')

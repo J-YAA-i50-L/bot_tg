@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 
+
 def get_file_of_tg(id, token):
     zap = f'''https://api.telegram.org/bot{token}/getFile?file_id={id}'''
     response = requests.get(zap).json()["result"]["file_path"]
@@ -9,6 +10,12 @@ def get_file_of_tg(id, token):
     output = open('dow.xlsx', 'wb')
     output.write(resp.content)
     output.close()
+
+
+def sendMessage(id, text, token):
+    zap = f'''https://api.telegram.org/bot{token}/sendMessage'''
+    params = {'chat_id': id, 'text': text}
+    return requests.get(zap, params=params).json()
 
 
 def check_file_of_tg():

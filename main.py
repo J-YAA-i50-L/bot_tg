@@ -1,9 +1,14 @@
+import datetime
 import logging
+import threading
+
+import schedule as schedule
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler, \
+    CallbackContext
 from for_db import *
 from geocod import *
-from work_of_xlsx import *
+from work_of_api import *
 
 # Enable logging
 logging.basicConfig(filename='logging.log',
@@ -12,7 +17,7 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "6018046007:AAFLor0c0bG_vXOWDN-a6s5cR-7Bas8gqlA"
+TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -45,6 +50,7 @@ async def document_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Повторите сообщение пользователя."""
+    print(update.message.chat_id)
     await update.message.reply_text(update.message.text)
 
 
@@ -67,14 +73,13 @@ async def statys(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if password == '1234':
         remove_status(user.id)
         await update.message.reply_html(rf"{user.mention_html()} назначен администратором!",
-                                        reply_markup=ForceReply(selective=True),)
+                                        reply_markup=ForceReply(selective=True), )
     else:
         await update.message.reply_text('У вас нет прав!!!')
 
 
 async def check_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Повторите сообщение пользователя."""
-    user = update.effective_user
     a = update.message.document
     if not a:
         await update.message.reply_text('не то')
@@ -97,12 +102,12 @@ async def remove_bzd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Отправит список разделов товаров, когда будет выдана команда /catalog."""
     await update.message.reply_text('Католог товаров у нас большой:\n'
-                                    ' 1 -Наборы\n - Детская косметика\n 2 - Лаки, пенки для волос, расчёски\n'
-                                    ' 3 - Уход за волосами в домашних условиях\n 4 - Косметика Мирра Люкс\n'
-                                    ' 5 - Insight профуход за волосами\n 6 - Крема для лица, тела и рук, очищение\n'
-                                    ' 7 - Женские духи\n 8 - Парфюм Niche- духи унисекс\n'
-                                    ' 9 - Elements- парфюм унисекс\n'
-                                    ' 10 - Продукция с Aloe Vera \n'
+                                    ' 1 -Наборы\n 2- Детская косметика\n 3 - Лаки, пенки для волос, расчёски\n'
+                                    ' 4 - Уход за волосами в домашних условиях\n 5 - Косметика Мирра Люкс\n'
+                                    ' 6 - Insight профуход за волосами\n 7 - Крема для лица, тела и рук, очищение\n'
+                                    ' 8 - Женские духи\n 9 - Парфюм Niche- духи унисекс\n'
+                                    ' 10 - Elements- парфюм унисекс\n'
+                                    ' 11 - Продукция с Aloe Vera \n'
                                     'Выбирете интересующий вас раздел(В ведите название или номер)')
     return 0
 
@@ -148,9 +153,22 @@ async def asortiment(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'Косметика Мирра Люкс', 'Insight профуход за волосами', 'Крема для лица, тела и рук, очищение',
             'Женские духи', 'Парфюм Niche- духи унисекс', 'Elements- парфюм унисекс', 'Продукция с Aloe Vera']
     if text in number:
-        print(get_assort(int(text)))
+        up_text = get_category_assort(int(text))
+        if len(up_text) == 0:
+            await update.message.reply_text(f'В категории {name[int(text)]} не присутствуют товары.')
+        else:
+            up_text = '\n'.join([str(i[1]) + ' : ' + str(i[2]) for i in up_text])
+            await update.message.reply_text(f'В категории {name[int(text)]} присутствуют товары: \n' + str(up_text))
+    elif text in name:
+        up_text = get_assort_name_category(text)
+        if len(up_text) == 0:
+            await update.message.reply_text(f'В категории {text} не присутствуют товары.')
+        else:
+            up_text = '\n'.join([str(i[1]) + ' : ' + str(i[2]) for i in up_text])
+            await update.message.reply_text(f'В категории {text} присутствуют товары: \n' + str(up_text))
     else:
-        print(text)
+        await update.message.reply_text(f'Возможно вы ошиблись.\nПопробйте ещё раз.')
+    return ConversationHandler.END
 
 
 async def joining_the_club_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -184,11 +202,41 @@ async def work_schedule_command(update: Update, context: ContextTypes.DEFAULT_TY
                                     'Будем вас в наших магазинах, '
                                     'их место положение можно узнать с помощью команды /geo')
 
+async def send_of_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Связь с админимтратором, когда будет выдана команда /admin."""
+    await update.message.reply_text('Введите текст, который вы планнируете отправить пользователям.')
+    return 0
+
+
+async def get_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Связь с админимтратором, когда будет выдана команда /admin."""
+
+    await update.message.reply_text('Введите дату в формате год:месяц:день, например, 2023:03:19\n'
+                                    'Если вы хотите отправить сообщение сейчас отправьте "сейчас".')
+    return 1
+
+
+
+def send_message():
+    today = ':'.join([str(datetime.date.today().year), str(datetime.date.today().month), str(datetime.date.today().day)])
+    print(today)
+    a = [i[1] for i in get_notification() if i[2] == today]
+    print(a)
+    for i in get_no_admin_id():
+        sendMessage(i, '\n'.join(a), TOKEN)
+
+
+def threat():  # второй поток для рассылки
+    while True:
+        schedule.run_pending()
+
 
 def main() -> None:
     """Запустите бота."""
     # Создайте приложение и передайте ему токен вашего бота.
     application = Application.builder().token(TOKEN).build()
+    schedule.every().day.at("16:04").do(send_message)  # рассылка уведомлений
+    threading.Thread(target=threat).start()
     script_registration = ConversationHandler(
         # Точка входа в диалог.
         # В данном случае — команда /start. Она задаёт первый вопрос.
@@ -208,8 +256,19 @@ def main() -> None:
         entry_points=[CommandHandler('catalog', catalog_command)],
         # Состояние внутри диалога.
         states={
-            0: [MessageHandler(filters.ALL & ~filters.COMMAND, asortiment)],
-            # 1: [MessageHandler(filters.ALL & ~filters.COMMAND, remove_bzd)]
+            0: [MessageHandler(filters.ALL & ~filters.COMMAND, asortiment)]
+        },
+        # Точка прерывания диалога. В данном случае — команда /stop.
+        allow_reentry=False,
+        fallbacks=[CommandHandler('stop', stop)]
+    )
+    script_send = ConversationHandler(
+        # Точка входа в диалог.
+        # В данном случае — команда /start. Она задаёт первый вопрос.
+        entry_points=[CommandHandler("send_message", send_of_admin_message)],
+        # Состояние внутри диалога.
+        states={
+            0: [MessageHandler(filters.ALL & ~filters.COMMAND, get_text)]
         },
         # Точка прерывания диалога. В данном случае — команда /stop.
         allow_reentry=False,
@@ -219,7 +278,6 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("statys", statys))
     application.add_handler(CommandHandler("help", help_command))
-    # application.add_handler(CommandHandler("catalog", catalog_command))
     application.add_handler(CommandHandler("contacts", contacts_command))
     application.add_handler(CommandHandler("administrator", admin_command))
     application.add_handler(CommandHandler("geo", geo_command))
@@ -228,11 +286,12 @@ def main() -> None:
     application.add_handler(CommandHandler("dnt", document))
     application.add_handler(script_registration)
     application.add_handler(script_catalog)
+    application.add_handler(script_send)
     application.add_handler(CommandHandler("document", document_command))
     application.add_handler(CommandHandler("work_schedule", work_schedule_command))
-
+    for i in range(200):
+        send_message()
     # по некомандному, то есть сообщению - повторить сообщение в Telegram
-    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
     createBD()
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
