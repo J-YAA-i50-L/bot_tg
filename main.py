@@ -48,8 +48,8 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def doc(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Повторите сообщение пользователя."""
-    await update.message.reply_text('eeee')
+    """Ждет файл xlxs т администратора"""
+    await update.message.reply_text('Отпавте файл xlsx с изминениями')
     return 0
 
 
@@ -178,7 +178,7 @@ def main() -> None:
     # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
     createBD()
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-    createBD()
+
     # Запускайте бота до тех пор, пока пользователь не нажмет Ctrl-C
     application.run_polling()
 
