@@ -1,7 +1,6 @@
 import logging
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler, \
-    BaseHandler
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler
 from for_db import *
 from geocod import *
 from work_of_xlsx import *
@@ -13,7 +12,7 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "6018046007:AAFLor0c0bG_vXOWDN-a6s5cR-7Bas8gqlA"
+TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -92,7 +91,7 @@ async def check_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def remove_bzd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     dow_remove_for_tg(update.message.text)
-    await update.message.reply_document('Таблица_Excel_БД.xlsx')
+    await update.message.reply_text('несены изменения')
 
 
 async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

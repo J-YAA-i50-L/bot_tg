@@ -4,7 +4,6 @@ import xlsxwriter
 import pandas as pd
 
 
-
 def createBD():  # инициализация класса
     con = sqlite3.connect('database.db', check_same_thread=False)  # подключение БД
     create_table1 = """CREATE TABLE IF NOT EXISTS assortment (
@@ -58,10 +57,9 @@ def createBD():  # инициализация класса
     con.commit()
 
 
-def get_answer(self, key_words):
+def get_answer(key_words):
     con = sqlite3.connect('database.db', check_same_thread=False)
-    # self.con.cursor().execute('''SELECT FROM ''')
-    return
+    return con.cursor().execute(f'''SELECT answer FROM question_answer WHERE {key_words.capitalize()}''').fetchone()
 
 
 def add_que_ans(question, answer):
@@ -71,9 +69,9 @@ def add_que_ans(question, answer):
     con.commit()
 
 
-def get_assort():
+def get_assort(id):
     con = sqlite3.connect('database.db', check_same_thread=False)
-    return con.cursor().execute('''SELECT * FROM category''').fetchall()
+    return con.cursor().execute(f'''SELECT * FROM  assortment where id = {id}''').fetchall()
 
 
 def get_category_assort(id_category):
@@ -91,7 +89,7 @@ def add_category(name, http):
 
 def del_category(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
-    if not is_category(con, name):
+    if not is_category(name):
         return False
     con.cursor().execute(f'''DELETE from category WHERE name = "{name}"''')
     con.commit()
@@ -102,12 +100,9 @@ def is_category(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM category WHERE name="{name}"''').fetchall()) != 0
 
-
 def is_status(id_tg):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM users WHERE id_tg="{id_tg}" and status = True''').fetchall()) != 0
-
-
 def is_assort(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM assortment WHERE name="{name}"''').fetchall()) != 0
@@ -116,7 +111,7 @@ def is_assort(name):
 def add_assort(name, opisanie, http, category):
     con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''INSERT INTO assortment(name, http, description, category)
-                                 VALUES('{name}', '{http}', '{opisanie}, '{category}')''')
+                                 VALUES('{name}', '{http}', '{opisanie}', {category})''')
     con.commit()
 
 
@@ -145,7 +140,7 @@ def remove_answer(question, answer):
 def add_user(id_tg, name, username):
     con = sqlite3.connect('database.db', check_same_thread=False)
     con.cursor().execute(f'''INSERT INTO users(name, status, id_tg, username)
-                                 VALUES('{name}', False, "{id_tg}", "{username}")''')
+                                 VALUES('{name}', False, {id_tg}, "{username}")''')
     con.commit()
 
 
@@ -242,12 +237,42 @@ def get_info_for_base():
 
 
 def dow_remove_for_tg(format):
-    for sheet in range(5):
-        df = pd.read_excel(io='dow.xlsx', sheet_name=sheet)
-        a = df.head(1000).values
-        print(a)
+    if format:
+        del_all()
+    df = pd.read_excel(io='dow.xlsx', sheet_name=0)
+    book = df.head(10000).values
+    for lis in book:
+        add_user(int(lis[3]), lis[1], lis[4])
+        if lis[2]:
+            remove_status(int(lis[3]))
+    df = pd.read_excel(io='dow.xlsx', sheet_name=1)
+    book = df.head(10000).values
+    for lis in book:
+        add_category(lis[1], lis[2])
+    df = pd.read_excel(io='dow.xlsx', sheet_name=2)
+    book = df.head(10000).values
+    for lis in book:
+        add_notification(lis[0], lis[1])
+    book = df.head(10000).values
+    for lis in book:
+        add_que_ans(lis[0], lis[1])
+    book = df.head(10000).values
+    for lis in book:
+        add_discount(lis[0], lis[1])
+    print(book)
 
 
+def del_all():
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    con.cursor().execute(f'''DELETE from notifications''')
+    con.cursor().execute(f'''DELETE from assortment''')
+    con.cursor().execute(f'''DELETE from category''')
+    con.cursor().execute(f'''DELETE from discounts''')
+    con.cursor().execute(f'''DELETE from notifications''')
+    con.cursor().execute(f'''DELETE from question_answer''')
+    con.cursor().execute(f'''DELETE from users''')
+
+    con.commit()
 
 # add_que_ans('12', '34')
 # print(con.get_assort())
@@ -266,9 +291,10 @@ def dow_remove_for_tg(format):
 # con.remove_discount('12', '56')
 # con.del_discount('12')
 # add_notification('12', '122')
+# add_assort('789', '98', '00', 1)
 # print(con.get_notification())
 # con.remove_notification('12', '98')
 # con.del_notification('12')
 # print(get_info_for_base())
 # print(is_status(89))
-# dow_remove_for_tg()
+# dow_remove_for_tg(0)
