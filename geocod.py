@@ -46,6 +46,7 @@ def get_ll_span(address):
 
     # Координаты центра топонима:
     toponym_coodrinates = toponym["Point"]["pos"]
+    print(toponym)
     # Долгота и Широта :
     toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
 
@@ -93,9 +94,9 @@ def get_nearest_object(point, kind):
 
 if __name__ == '__main__':
     ll, spn = get_ll_span("Арзамас, Парковая 14А")
+    ll1, spn1 = get_ll_span("Арзамас, Зеленая 138")
     print(ll, spn)
-    if ll and spn:
-        point = "{ll},pm2vvl".format(ll=ll)
-        static_api_request = "http://static-maps.yandex.ru/1.x/?ll={ll}&spn={spn}&l=map&pt={point}".format(
-            **locals())
+    if ll and spn and ll1 and spn1:
+        point = "{ll},pm2vvm~{ll1},pmntl".format(ll=ll, ll1=ll1)
+        static_api_request = "http://static-maps.yandex.ru/1.x/?ll={ll}&spn=0.5,0.5&l=map&pt={point}".format(**locals())
         print(static_api_request)
