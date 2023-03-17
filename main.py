@@ -211,7 +211,7 @@ async def send_of_admin_message(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def get_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Связь с админимтратором, когда будет выдана команда /admin."""
-    context.user_data['0'] = 0
+    context.user_data['0'] = update.message.text
 
     await update.message.reply_text('Введите дату в формате год:месяц:день, например, 2023:03:19\n'
                                     'Если вы хотите отправить сообщение сейчас отправьте "сейчас".')
@@ -220,21 +220,22 @@ async def get_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Связь с админимтратором, когда будет выдана команда /admin."""
+    if update.message.text == 'Сейчас':
+        send_message()
     print(context.user_data['0'])
 
-    await update.message.reply_text('Введите дату в формате год:месяц:день, например, 2023:03:19\n'
-                                    'Если вы хотите отправить сообщение сейчас отправьте "сейчас".')
+    await update.message.reply_text('')
     return ConversationHandler.END
 
 
-def send_message():
-    today = ':'.join(
-        [str(datetime.date.today().year), str(datetime.date.today().month), str(datetime.date.today().day)])
-    print(today)
-    a = [i[1] for i in get_notification() if i[2] == today]
-    print(a)
+def send_message(flag, text=''):
+    if flag:
+        today = ':'.join([str(datetime.date.today().year), str(datetime.date.today().month), str(datetime.date.today().day)])
+        print(today)
+        text = [i[1] for i in get_notification() if i[2] == today]
+        print(text)
     for i in get_no_admin_id():
-        sendMessage(i, '\n'.join(a), TOKEN)
+        sendMessage(i, '\n'.join(text), TOKEN)
 
 
 def threat():  # второй поток для рассылки
@@ -246,7 +247,7 @@ def main() -> None:
     """Запустите бота."""
     # Создайте приложение и передайте ему токен вашего бота.
     application = Application.builder().token(TOKEN).build()
-    schedule.every().day.at("16:04").do(send_message)  # рассылка уведомлений
+    schedule.every().day.at("16:04").do(send_message, True)  # рассылка уведомлений
     threading.Thread(target=threat).start()
     script_registration = ConversationHandler(
         # Точка входа в диалог.
