@@ -241,8 +241,9 @@ def get_info_for_base():
 def dow_remove_for_tg(format):
     for sheet in range(5):
         df = pd.read_excel(io='dow.xlsx', sheet_name=sheet)
-        for i in range(1):
-            print(df.head(1000).values)
+        a = df.head(1000).values
+        print(a)
+
 
 
 # add_que_ans('12', '34')
