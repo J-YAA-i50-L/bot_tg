@@ -1,7 +1,6 @@
 import logging
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler, \
-    BaseHandler
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler
 from for_db import *
 from geocod import *
 from work_of_xlsx import *
@@ -13,7 +12,7 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "5544711357:AAFopsvs4GMRVz25f8KALwNsZbr3VmzdMwM"
+TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -46,7 +45,8 @@ async def document_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Повторите сообщение пользователя."""
-    await update.message.reply_text(update.message.text)
+
+    await update.message.reply_text(get_answer(update.message.text))
 
 
 async def doc(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -92,7 +92,7 @@ async def check_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def remove_bzd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     dow_remove_for_tg(update.message.text)
-    await update.message.reply_document('Таблица_Excel_БД.xlsx')
+    await update.message.reply_text('несены изменения')
 
 
 async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -114,18 +114,12 @@ async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                                     'С ним можно связаться по телефону: +79202980333')
 
 
-async def geo_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Магазины на карте, когда будет выдана команда /geo."""
-    try:
-        maps = maps_global()
-        context.bot.sendPhoto(update.message.chat.id, maps, caption=update.message.text)
-    except RuntimeError as ex:
-        await update.message.reply_text('Что то пошло не по плану')
+
 
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Магазины на карте, когда будет выдана команда /geo."""
-    await update.message.reply_text('я карта. я карта')
+    await update.message.reply_text('я стоп. я сто')
     return ConversationHandler.END
 
 
@@ -161,6 +155,12 @@ async def work_schedule_command(update: Update, context: ContextTypes.DEFAULT_TY
                                     'их место положение можно узнать с помощью команды /geo')
 
 
+async def discounts(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    a = ['В настоящий момент у нас доступно']
+    a.extend(list(map(lambda x: str(x[1]) + 'действует до' + str(x[2]), get_discount())))
+    print(a)
+    await update.message.reply_text('\n'.join(a))
+
 def main() -> None:
     """Запустите бота."""
     # Создайте приложение и передайте ему токен вашего бота.
@@ -185,16 +185,16 @@ def main() -> None:
     application.add_handler(CommandHandler("catalog", catalog_command))
     application.add_handler(CommandHandler("contacts", contacts_command))
     application.add_handler(CommandHandler("administrator", admin_command))
-    application.add_handler(CommandHandler("geo", geo_command))
+    # application.add_handler(CommandHandler("geo", geo_command))
     application.add_handler(CommandHandler("joining_the_club", joining_the_club_command))
     application.add_handler(CommandHandler("club_of_privileges", club_of_privileges_command))
     application.add_handler(CommandHandler("dnt", document))
     application.add_handler(script_registration)
     application.add_handler(CommandHandler("document", document_command))
     application.add_handler(CommandHandler("work_schedule", work_schedule_command))
+    application.add_handler(CommandHandler("discounts", discounts))
 
-    # по некомандному, то есть сообщению - повторить сообщение в Telegram
-    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    # по некомандному, то есть сообщению - повторить
     createBD()
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
