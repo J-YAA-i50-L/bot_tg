@@ -1,35 +1,6 @@
-# coding:utf-8
-
 import requests
 
-import pandas as pd
 
-def get_file_of_tg(id, token):
-    zap = f'''https://api.telegram.org/bot{token}/getFile?file_id={id}'''
-    response = requests.get(zap).json()["result"]["file_path"]
-    dls = f'https://api.telegram.org/file/bot{token}/{response}'
-    resp = requests.get(dls)
-    output = open('dow.xlsx', 'wb')
-    output.write(resp.content)
-    output.close()
-
-
-def check_file_of_tg():
-    a = [['ID', 'ФИО', 'Должность(1-админ, 0-клиент', 'ID TG', 'UserName'],
-         ['ID Категории', 'Название категории', 'Путь к файлу картинки'],
-         ['Сообщение', 'Дата отправления'],
-         ['Вопрос', 'Ответ'],
-         ['Название', 'Описание']]
-    flag = True
-    for sheet in range(5):
-        df = pd.read_excel(io='dow.xlsx', sheet_name=sheet)
-        if ''.join(df.head(0).columns.values) != ''.join(a[sheet]):
-            flag = False
-            break
-    return flag
-
-
-print(check_file_of_tg())
 def geocode(address):
     # Собираем запрос для геокодера.
     geocoder_request = "http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode={address}&format=json".format(**locals())
@@ -121,9 +92,11 @@ def get_nearest_object(point, kind):
 
 if __name__ == '__main__':
     ll, spn = get_ll_span("Арзамас, Парковая 14А")
-    ll1, spn1 = get_ll_span("Арзамас, Зеленая 138")
-    print(ll, spn)
+    ll1, spn1 = get_ll_span(" Арзамас, просп. Ленина 121")
     if ll and spn and ll1 and spn1:
-        point = "{ll},pm2vvm~{ll1},pmntl".format(ll=ll, ll1=ll1)
-        static_api_request = "http://static-maps.yandex.ru/1.x/?ll={ll}&spn=0.5,0.5&l=map&pt={point}".format(**locals())
+        point = "{ll},pm2rdm2~{ll1},pm2lbm1".format(ll=ll, ll1=ll1)
+        ll2 = (ll[0] + ll1[0]) / 2, (ll[1] + ll1[1]) / 2
+        print(ll, ll1)
+        print(ll2)
+        static_api_request = "http://static-maps.yandex.ru/1.x/?ll={ll}&spn=0.02,0.02&l=map&pt={point}".format(**locals())
         print(static_api_request)
