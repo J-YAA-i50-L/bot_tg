@@ -202,6 +202,7 @@ async def work_schedule_command(update: Update, context: ContextTypes.DEFAULT_TY
                                     'Будем вас в наших магазинах, '
                                     'их место положение можно узнать с помощью команды /geo')
 
+
 async def send_of_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Связь с админимтратором, когда будет выдана команда /admin."""
     await update.message.reply_text('Введите текст, который вы планнируете отправить пользователям.')
@@ -210,15 +211,25 @@ async def send_of_admin_message(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def get_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Связь с админимтратором, когда будет выдана команда /admin."""
+    context.user_data['0'] = 0
 
     await update.message.reply_text('Введите дату в формате год:месяц:день, например, 2023:03:19\n'
                                     'Если вы хотите отправить сообщение сейчас отправьте "сейчас".')
     return 1
 
 
+async def get_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Связь с админимтратором, когда будет выдана команда /admin."""
+    print(context.user_data['0'])
+
+    await update.message.reply_text('Введите дату в формате год:месяц:день, например, 2023:03:19\n'
+                                    'Если вы хотите отправить сообщение сейчас отправьте "сейчас".')
+    return ConversationHandler.END
+
 
 def send_message():
-    today = ':'.join([str(datetime.date.today().year), str(datetime.date.today().month), str(datetime.date.today().day)])
+    today = ':'.join(
+        [str(datetime.date.today().year), str(datetime.date.today().month), str(datetime.date.today().day)])
     print(today)
     a = [i[1] for i in get_notification() if i[2] == today]
     print(a)
@@ -268,7 +279,8 @@ def main() -> None:
         entry_points=[CommandHandler("send_message", send_of_admin_message)],
         # Состояние внутри диалога.
         states={
-            0: [MessageHandler(filters.ALL & ~filters.COMMAND, get_text)]
+            0: [MessageHandler(filters.ALL & ~filters.COMMAND, get_text)],
+            1: [MessageHandler(filters.ALL & ~filters.COMMAND, get_time)]
         },
         # Точка прерывания диалога. В данном случае — команда /stop.
         allow_reentry=False,
@@ -289,8 +301,6 @@ def main() -> None:
     application.add_handler(script_send)
     application.add_handler(CommandHandler("document", document_command))
     application.add_handler(CommandHandler("work_schedule", work_schedule_command))
-    for i in range(200):
-        send_message()
     # по некомандному, то есть сообщению - повторить сообщение в Telegram
     createBD()
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
