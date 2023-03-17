@@ -1,6 +1,8 @@
 import sqlite3
 
 import xlsxwriter
+import pandas as pd
+
 
 
 def createBD():  # инициализация класса
@@ -236,6 +238,13 @@ def get_info_for_base():
     return
 
 
+def dow_remove_for_tg(format):
+    for sheet in range(5):
+        df = pd.read_excel(io='dow.xlsx', sheet_name=sheet)
+        a = df.head(1000).values
+        print(a)
+
+
 
 # add_que_ans('12', '34')
 # print(con.get_assort())
@@ -259,3 +268,4 @@ def get_info_for_base():
 # con.del_notification('12')
 # print(get_info_for_base())
 # print(is_status(89))
+dow_remove_for_tg()
