@@ -59,6 +59,18 @@ async def document(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_document('Таблица_Excel_БД.xlsx')
 
 
+async def statys(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Назначает пользователя администратором, когда будет выдана команда /statys [password]."""
+    password = update.message.text[8:]
+    user = update.effective_user
+    if password == '1234':
+        remove_status(user.id)
+        await update.message.reply_html(rf"{user.mention_html()} назначен администратором!",
+                                        reply_markup=ForceReply(selective=True),)
+    else:
+        await update.message.reply_text('У вас нет прав!!!')
+
+
 async def check_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Повторите сообщение пользователя."""
     user = update.effective_user
