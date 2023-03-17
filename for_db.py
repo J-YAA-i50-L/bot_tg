@@ -102,9 +102,12 @@ def is_category(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM category WHERE name="{name}"''').fetchall()) != 0
 
+
 def is_status(id_tg):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM users WHERE id_tg="{id_tg}" and status = True''').fetchall()) != 0
+
+
 def is_assort(name):
     con = sqlite3.connect('database.db', check_same_thread=False)
     return len(con.cursor().execute(f'''SELECT * FROM assortment WHERE name="{name}"''').fetchall()) != 0
@@ -268,4 +271,4 @@ def dow_remove_for_tg(format):
 # con.del_notification('12')
 # print(get_info_for_base())
 # print(is_status(89))
-dow_remove_for_tg()
+# dow_remove_for_tg()

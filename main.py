@@ -4,6 +4,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
     BaseHandler
 from for_db import *
 from geocod import *
+from work_of_xlsx import *
 
 # Enable logging
 logging.basicConfig(filename='logging.log',
@@ -12,7 +13,7 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
+TOKEN = "5544711357:AAFopsvs4GMRVz25f8KALwNsZbr3VmzdMwM"
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -30,6 +31,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Отправит список команд, когда будет выдана команда /help."""
+    print(1)
     await update.message.reply_text('Команды: \n "/catalog" - показывает каталог товаров магазина \n')
 
 
@@ -114,7 +116,12 @@ async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def geo_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Магазины на карте, когда будет выдана команда /geo."""
-    await update.message.reply_text('я карта. я карта')
+    try:
+        maps = maps_global()
+        context.bot.sendPhoto(update.message.chat.id, maps, caption=update.message.text)
+    except RuntimeError as ex:
+        await update.message.reply_text('Что то пошло не по плану')
+
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Магазины на карте, когда будет выдана команда /geo."""
