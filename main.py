@@ -12,7 +12,7 @@ logging.basicConfig(filename='logging.log',
 
 logger = logging.getLogger(__name__)
 
-TOKEN = "5342995443:AAEBqyRLrd5AmHEEhCNLyfHVy3td3Qvw-Ec"
+TOKEN = "6018046007:AAFLor0c0bG_vXOWDN-a6s5cR-7Bas8gqlA"
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -94,7 +94,7 @@ async def remove_bzd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     await update.message.reply_text('несены изменения')
 
 
-async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Отправит список разделов товаров, когда будет выдана команда /catalog."""
     await update.message.reply_text('Католог товаров у нас большой:\n'
                                     ' 1 -Наборы\n - Детская косметика\n 2 - Лаки, пенки для волос, расчёски\n'
@@ -148,10 +148,9 @@ async def asortiment(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'Косметика Мирра Люкс', 'Insight профуход за волосами', 'Крема для лица, тела и рук, очищение',
             'Женские духи', 'Парфюм Niche- духи унисекс', 'Elements- парфюм унисекс', 'Продукция с Aloe Vera']
     if text in number:
-        get_assort(int(text))
+        print(get_assort(int(text)))
     else:
         print(text)
-
 
 
 async def joining_the_club_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -209,7 +208,7 @@ def main() -> None:
         entry_points=[CommandHandler('catalog', catalog_command)],
         # Состояние внутри диалога.
         states={
-            0: [MessageHandler(filters.ALL & ~filters.COMMAND, check_file)],
+            0: [MessageHandler(filters.ALL & ~filters.COMMAND, asortiment)],
             # 1: [MessageHandler(filters.ALL & ~filters.COMMAND, remove_bzd)]
         },
         # Точка прерывания диалога. В данном случае — команда /stop.
